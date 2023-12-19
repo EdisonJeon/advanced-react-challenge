@@ -2,14 +2,6 @@ import React from "react";
 import axios from "axios";
 import * as yup from "yup";
 
-/* coordinates of each square of the grid
-  (1, 1) (2, 1) (3, 1)
-  (1, 2) (2, 2) (3, 2)
-  (1, 3) (2, 3) (3, 3)
-*/
-
-// post request doesn't give us back anything other than message
-
 const formSchema = yup.object().shape({
   email: yup
     .string()
@@ -20,7 +12,40 @@ const formSchema = yup.object().shape({
 export default class AppClass extends React.Component {
   state = { message: "", email: "", index: 4, steps: 0 };
 
-  // METHODS
+  getXY = () => {
+    const coordinates = [
+      [1, 1],
+      [2, 1],
+      [3, 1],
+      [1, 2],
+      [2, 2],
+      [3, 2],
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ];
+
+    let x = coordinates[this.state.index][0];
+    let y = coordinates[this.state.index][1];
+    return [x, y];
+  };
+
+  goUp = (e) => {
+    const { name } = e.target;
+    if (name === "up" && this.getXY()[1] > 1)
+      return this.setState({
+        ...this.state,
+        index: this.state.index - 3,
+        steps: this.state.steps + 1,
+      });
+    else return this.setState({ ...this.state, message: "You can't go up" });
+  };
+
+  reset = () => {
+    alert("App has been reset!");
+    this.setState({ message: "", email: "", index: 4, steps: 0 });
+  };
+
   onChange = (e) => {
     const { value } = e.target;
     this.setState({
@@ -36,7 +61,12 @@ export default class AppClass extends React.Component {
       .then(() => {
         const URL = "http://localhost:9000/api/result";
         axios
-          .post(URL, { x: 1, y: 2, steps: 5, email: this.state.email })
+          .post(URL, {
+            x: 1,
+            y: this.getXY()[1],
+            steps: this.state.steps,
+            email: this.state.email,
+          })
           .then((res) => {
             console.log(res);
             this.setState({
@@ -62,27 +92,24 @@ export default class AppClass extends React.Component {
     this.validate("email", this.state.email);
   };
 
-  move = () => {
-    console.log("any direction got clicked.");
-  };
-
-  reset = () => {
-    console.log("reset button got clicked.");
-  };
-
   render() {
     console.log("*** Class Component*** has fired.");
+    console.log(this.getXY()[0]);
+    console.log(this.getXY()[1]);
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">Coordinates (2, 2)</h3>
-          <h3 id="steps">You moved 0 times</h3>
+          <h3 id="coordinates">Coordinates (2, {this.getXY()[1]})</h3>
+          <h3 id="steps">You moved {this.state.steps} times</h3>
         </div>
         <div id="grid">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
-            <div key={idx} className={`square ${idx === 4 ? " active" : ""}`}>
-              {idx === 4 ? "B" : null}
+            <div
+              key={idx}
+              className={`square ${idx === this.state.index ? " active" : ""}`}
+            >
+              {idx === this.state.index ? "B" : null}
             </div>
           ))}
         </div>
@@ -90,10 +117,18 @@ export default class AppClass extends React.Component {
           <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
-          <button id="left">LEFT</button>
-          <button id="up">UP</button>
-          <button id="right">RIGHT</button>
-          <button id="down">DOWN</button>
+          <button id="left" name="left" onClick={this.move}>
+            LEFT
+          </button>
+          <button id="up" name="up" onClick={this.goUp}>
+            UP
+          </button>
+          <button id="right" onClick={this.move}>
+            RIGHT
+          </button>
+          <button id="down" onClick={this.move}>
+            DOWN
+          </button>
           <button id="reset" onClick={this.reset}>
             reset
           </button>
@@ -112,39 +147,3 @@ export default class AppClass extends React.Component {
     );
   }
 }
-
-/* 
-  getXY = () => {
-    // It it not necessary to have a state to track the coordinates.
-    // It's enough to know what index the "B" is at, to be able to calculate them.
-  };
-
-  getXYMessage = () => {
-    // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
-    // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
-    // returns the fully constructed string.
-  };
-
-  reset = () => {
-    // Use this helper to reset all states to their initial values.
-  };
-
-  getNextIndex = (direction) => {
-    // This helper takes a direction ("left", "up", etc) and calculates what the next index
-    // of the "B" would be. If the move is impossible because we are at the edge of the grid,
-    // this helper should return the current index unchanged.
-  };
-
-  move = (evt) => {
-    // This event handler can use the helper above to obtain a new index for the "B",
-    // and change any states accordingly.
-  };
-
-  onChange = (evt) => {
-    // You will need this to update the value of the input.
-  };
-
-  onSubmit = (evt) => {
-    // Use a POST request to send a payload to the server.
-  };
-*/
