@@ -41,6 +41,18 @@ export default class AppClass extends React.Component {
     else return this.setState({ ...this.state, message: "You can't go up" });
   };
 
+  // HUGE BUG, NEED TO NOT GO RIGHT TO THE NEXT ROW
+  goRight = (e) => {
+    const { name } = e.target;
+    if (name === "right" && this.getXY()[0] < 4)
+      return this.setState({
+        ...this.state,
+        index: this.state.index + 1,
+        steps: this.state.steps + 1,
+      });
+    else return this.setState({ ...this.state, message: "you can't go right" });
+  };
+
   reset = () => {
     alert("App has been reset!");
     this.setState({ message: "", email: "", index: 4, steps: 0 });
@@ -94,13 +106,13 @@ export default class AppClass extends React.Component {
 
   render() {
     console.log("*** Class Component*** has fired.");
-    console.log(this.getXY()[0]);
-    console.log(this.getXY()[1]);
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>
         <div className="info">
-          <h3 id="coordinates">Coordinates (2, {this.getXY()[1]})</h3>
+          <h3 id="coordinates">
+            Coordinates ({this.getXY()[0]}, {this.getXY()[1]})
+          </h3>
           <h3 id="steps">You moved {this.state.steps} times</h3>
         </div>
         <div id="grid">
@@ -123,7 +135,7 @@ export default class AppClass extends React.Component {
           <button id="up" name="up" onClick={this.goUp}>
             UP
           </button>
-          <button id="right" onClick={this.move}>
+          <button id="right" name="right" onClick={this.goRight}>
             RIGHT
           </button>
           <button id="down" onClick={this.move}>
