@@ -131,7 +131,6 @@ export default class AppClass extends React.Component {
   };
 
   render() {
-    console.log("*** Class Component *** has fired.");
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>

@@ -130,7 +130,7 @@ export default function AppFunctional(props) {
     validate("email", grid.email);
   };
 
-  console.log("*** Functional Component *** has fired.");
+  
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
