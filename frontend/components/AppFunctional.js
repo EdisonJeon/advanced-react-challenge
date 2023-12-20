@@ -30,9 +30,10 @@ export default function AppFunctional(props) {
       [2, 3],
       [3, 3],
     ];
-    let x = coordinates[grid.index][0];
-    let y = coordinates[grid.index][1];
-    return [x, y];
+    // let x = coordinates[grid.index][0];
+    // let y = coordinates[grid.index][1];
+    // return [x, y];
+    return [coordinates[grid.index][0], coordinates[grid.index][1]];
   };
 
   const goUp = (e) => {
@@ -111,6 +112,7 @@ export default function AppFunctional(props) {
             email: grid.email,
           })
           .then((res) => {
+            console.log(res);
             setGrid({ ...grid, message: res.data.message, email: "" });
           })
           .catch((err) => {
@@ -122,7 +124,7 @@ export default function AppFunctional(props) {
             });
           });
       })
-      .catch((err) => setGrid({ message: err.errors[0] }));
+      .catch((err) => setGrid({ ...grid, message: err.errors[0] }));
   };
 
   const onSubmit = (e) => {
@@ -130,7 +132,6 @@ export default function AppFunctional(props) {
     validate("email", grid.email);
   };
 
-  
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
