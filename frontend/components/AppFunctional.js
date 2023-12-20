@@ -6,7 +6,8 @@ const formSchema = yup.object().shape({
   email: yup
     .string()
     .email("Ouch: email must be a valid email")
-    .required("Ouch: email is required"),
+    .required("Ouch: email is required")
+    .notOneOf(["foo@bar.baz"], "foo@bar.baz failure #71"),
 });
 
 export default function AppFunctional(props) {
@@ -16,9 +17,6 @@ export default function AppFunctional(props) {
     index: 4,
     steps: 0,
   });
-
-  console.log(grid);
-  console.log(grid.index);
 
   const getXY = () => {
     const coordinates = [
@@ -86,7 +84,6 @@ export default function AppFunctional(props) {
   };
 
   const reset = () => {
-    alert("App has been reset!");
     setGrid({
       message: "",
       email: "",
@@ -140,7 +137,9 @@ export default function AppFunctional(props) {
         <h3 id="coordinates">
           Coordinates ({getXY()[0]}, {getXY()[1]})
         </h3>
-        <h3 id="steps">You moved {grid.steps} times</h3>
+        <h3 id="steps">
+          You moved {grid.steps} {grid.steps === 1 ? "time" : "times"}
+        </h3>
       </div>
       <div id="grid">
         {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (

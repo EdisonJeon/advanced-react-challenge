@@ -6,7 +6,8 @@ const formSchema = yup.object().shape({
   email: yup
     .string()
     .email("Ouch: email must be a valid email")
-    .required("Ouch: email is required"),
+    .required("Ouch: email is required")
+    .notOneOf(["foo@bar.baz"], "foo@bar.baz failure #71"),
 });
 
 export default class AppClass extends React.Component {
@@ -80,7 +81,6 @@ export default class AppClass extends React.Component {
   };
 
   reset = () => {
-    alert("App has been reset!");
     this.setState({ message: "", email: "", index: 4, steps: 0 });
   };
 
@@ -132,8 +132,6 @@ export default class AppClass extends React.Component {
 
   render() {
     console.log("*** Class Component *** has fired.");
-    console.log(this.state);
-    console.log(this.state.index);
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>
@@ -141,7 +139,10 @@ export default class AppClass extends React.Component {
           <h3 id="coordinates">
             Coordinates ({this.getXY()[0]}, {this.getXY()[1]})
           </h3>
-          <h3 id="steps">You moved {this.state.steps} times</h3>
+          <h3 id="steps">
+            You moved {this.state.steps}{" "}
+            {this.state.steps === 1 ? "time" : "times"}
+          </h3>
         </div>
         <div id="grid">
           {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
