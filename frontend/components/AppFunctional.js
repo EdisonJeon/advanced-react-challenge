@@ -1,78 +1,187 @@
-import React from 'react'
+import React, { useState } from "react";
+import axios from "axios";
+import * as yup from "yup";
 
-// Suggested initial states
-const initialMessage = ''
-const initialEmail = ''
-const initialSteps = 0
-const initialIndex = 4 // the index the "B" is at
+const formSchema = yup.object().shape({
+  email: yup
+    .string()
+    .email("Ouch: email must be a valid email")
+    .required("Ouch: email is required"),
+});
 
 export default function AppFunctional(props) {
-  // THE FOLLOWING HELPERS ARE JUST RECOMMENDATIONS.
-  // You can delete them and build your own logic from scratch.
+  const [grid, setGrid] = useState({
+    message: "",
+    email: "",
+    index: 4,
+    steps: 0,
+  });
 
-  function getXY() {
-    // It it not necessary to have a state to track the coordinates.
-    // It's enough to know what index the "B" is at, to be able to calculate them.
-  }
+  console.log(grid);
+  console.log(grid.index);
 
-  function getXYMessage() {
-    // It it not necessary to have a state to track the "Coordinates (2, 2)" message for the user.
-    // You can use the `getXY` helper above to obtain the coordinates, and then `getXYMessage`
-    // returns the fully constructed string.
-  }
+  const getXY = () => {
+    const coordinates = [
+      [1, 1],
+      [2, 1],
+      [3, 1],
+      [1, 2],
+      [2, 2],
+      [3, 2],
+      [1, 3],
+      [2, 3],
+      [3, 3],
+    ];
+    let x = coordinates[grid.index][0];
+    let y = coordinates[grid.index][1];
+    return [x, y];
+  };
 
-  function reset() {
-    // Use this helper to reset all states to their initial values.
-  }
+  const goUp = (e) => {
+    const { name } = e.target;
+    if (name === "up" && getXY()[1] > 1)
+      return setGrid({
+        ...grid,
+        index: grid.index - 3,
+        steps: grid.steps + 1,
+        message: "",
+      });
+    else return setGrid({ ...grid, message: "You can't go up" });
+  };
 
-  function getNextIndex(direction) {
-    // This helper takes a direction ("left", "up", etc) and calculates what the next index
-    // of the "B" would be. If the move is impossible because we are at the edge of the grid,
-    // this helper should return the current index unchanged.
-  }
+  const goDown = (e) => {
+    const { name } = e.target;
+    if (name === "down" && getXY()[1] < 3)
+      return setGrid({
+        ...grid,
+        index: grid.index + 3,
+        steps: grid.steps + 1,
+        message: "",
+      });
+    else return setGrid({ ...grid, message: "You can't go down" });
+  };
 
-  function move(evt) {
-    // This event handler can use the helper above to obtain a new index for the "B",
-    // and change any states accordingly.
-  }
+  const goRight = (e) => {
+    const { name } = e.target;
+    if (name === "right" && getXY()[0] < 3)
+      return setGrid({
+        ...grid,
+        index: grid.index + 1,
+        steps: grid.steps + 1,
+        message: "",
+      });
+    else return setGrid({ ...grid, message: "You can't go right" });
+  };
 
-  function onChange(evt) {
-    // You will need this to update the value of the input.
-  }
+  const goLeft = (e) => {
+    const { name } = e.target;
+    if (name === "left" && getXY()[0] > 1)
+      return setGrid({
+        ...grid,
+        index: grid.index - 1,
+        steps: grid.steps + 1,
+        message: "",
+      });
+    else return setGrid({ ...grid, message: "You can't go left" });
+  };
 
-  function onSubmit(evt) {
-    // Use a POST request to send a payload to the server.
-  }
+  const reset = () => {
+    alert("App has been reset!");
+    setGrid({
+      message: "",
+      email: "",
+      index: 4,
+      steps: 0,
+    });
+  };
 
+  const onChange = (e) => {
+    const { value } = e.target;
+    setGrid({ ...grid, email: value });
+  };
+
+  const validate = (name, value) => {
+    yup
+      .reach(formSchema, name)
+      .validate(value)
+      .then(() => {
+        const URL = "http://localhost:9000/api/result";
+        axios
+          .post(URL, {
+            x: getXY()[0],
+            y: getXY()[1],
+            steps: grid.steps,
+            email: grid.email,
+          })
+          .then((res) => {
+            setGrid({ ...grid, message: res.data.message, email: "" });
+          })
+          .catch((err) => {
+            console.error("request timed out with error =>", err);
+            setGrid({
+              ...grid,
+              message:
+                "Oops, looks like something is wrong on our side, please try again later.",
+            });
+          });
+      })
+      .catch((err) => setGrid({ message: err.errors[0] }));
+  };
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    validate("email", grid.email);
+  };
+
+  console.log("*** Functional Component *** has fired.");
   return (
     <div id="wrapper" className={props.className}>
       <div className="info">
-        <h3 id="coordinates">Coordinates (2, 2)</h3>
-        <h3 id="steps">You moved 0 times</h3>
+        <h3 id="coordinates">
+          Coordinates ({getXY()[0]}, {getXY()[1]})
+        </h3>
+        <h3 id="steps">You moved {grid.steps} times</h3>
       </div>
       <div id="grid">
-        {
-          [0, 1, 2, 3, 4, 5, 6, 7, 8].map(idx => (
-            <div key={idx} className={`square${idx === 4 ? ' active' : ''}`}>
-              {idx === 4 ? 'B' : null}
-            </div>
-          ))
-        }
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((idx) => (
+          <div
+            key={idx}
+            className={`square${idx === grid.index ? " active" : ""}`}
+          >
+            {idx === grid.index ? "B" : null}
+          </div>
+        ))}
       </div>
       <div className="info">
-        <h3 id="message"></h3>
+        <h3 id="message">{grid.message}</h3>
       </div>
       <div id="keypad">
-        <button id="left">LEFT</button>
-        <button id="up">UP</button>
-        <button id="right">RIGHT</button>
-        <button id="down">DOWN</button>
-        <button id="reset">reset</button>
+        <button id="left" name="left" onClick={goLeft}>
+          LEFT
+        </button>
+        <button id="up" name="up" onClick={goUp}>
+          UP
+        </button>
+        <button id="right" name="right" onClick={goRight}>
+          RIGHT
+        </button>
+        <button id="down" name="down" onClick={goDown}>
+          DOWN
+        </button>
+        <button id="reset" onClick={reset}>
+          reset
+        </button>
       </div>
-      <form>
-        <input id="email" type="email" placeholder="type email"></input>
+      <form onSubmit={onSubmit}>
+        <input
+          id="email"
+          type="email"
+          placeholder="type email"
+          value={grid.email}
+          onChange={onChange}
+        ></input>
         <input id="submit" type="submit"></input>
       </form>
     </div>
-  )
+  );
 }

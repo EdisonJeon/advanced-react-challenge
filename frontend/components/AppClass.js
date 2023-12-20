@@ -100,7 +100,7 @@ export default class AppClass extends React.Component {
         const URL = "http://localhost:9000/api/result";
         axios
           .post(URL, {
-            x: 1,
+            x: this.getXY()[0],
             y: this.getXY()[1],
             steps: this.state.steps,
             email: this.state.email,
@@ -131,7 +131,9 @@ export default class AppClass extends React.Component {
   };
 
   render() {
-    console.log("*** Class Component*** has fired.");
+    console.log("*** Class Component *** has fired.");
+    console.log(this.state);
+    console.log(this.state.index);
     const { className } = this.props;
     return (
       <div id="wrapper" className={className}>
