@@ -37,20 +37,46 @@ export default class AppClass extends React.Component {
         ...this.state,
         index: this.state.index - 3,
         steps: this.state.steps + 1,
+        message: "",
       });
     else return this.setState({ ...this.state, message: "You can't go up" });
+  };
+
+  goDown = (e) => {
+    const { name } = e.target;
+    if (name === "down" && this.getXY()[1] < 3)
+      return this.setState({
+        ...this.state,
+        index: this.state.index + 3,
+        steps: this.state.steps + 1,
+        message: "",
+      });
+    else return this.setState({ ...this.state, message: "You can't go down" });
   };
 
   // HUGE BUG, NEED TO NOT GO RIGHT TO THE NEXT ROW
   goRight = (e) => {
     const { name } = e.target;
-    if (name === "right" && this.getXY()[0] < 4)
+    if (name === "right" && this.getXY()[0] < 3)
       return this.setState({
         ...this.state,
         index: this.state.index + 1,
         steps: this.state.steps + 1,
+        message: "",
       });
-    else return this.setState({ ...this.state, message: "you can't go right" });
+    else return this.setState({ ...this.state, message: "You can't go right" });
+  };
+
+  goLeft = (e) => {
+    const { name } = e.target;
+    if (name === "left" && this.getXY()[0] > 1)
+      return this.setState({
+        ...this.state,
+        index: this.state.index - 1,
+        steps: this.state.steps + 1,
+        message: "",
+      });
+    else return this.setState({ ...this.state, message: "You can't go left" });
   };
 
   reset = () => {
@@ -129,7 +155,7 @@ export default class AppClass extends React.Component {
           <h3 id="message">{this.state.message}</h3>
         </div>
         <div id="keypad">
-          <button id="left" name="left" onClick={this.move}>
+          <button id="left" name="left" onClick={this.goLeft}>
             LEFT
           </button>
           <button id="up" name="up" onClick={this.goUp}>
@@ -138,7 +164,7 @@ export default class AppClass extends React.Component {
           <button id="right" name="right" onClick={this.goRight}>
             RIGHT
           </button>
-          <button id="down" onClick={this.move}>
+          <button id="down" name="down" onClick={this.goDown}>
             DOWN
           </button>
           <button id="reset" onClick={this.reset}>
