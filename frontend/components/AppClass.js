@@ -122,7 +122,7 @@ export default class AppClass extends React.Component {
             });
           });
       })
-      .catch((err) => this.setState({ message: err.errors[0] }));
+      .catch((err) => this.setState({ ...this.state, message: err.errors[0] }));
   };
 
   onSubmit = (e) => {
